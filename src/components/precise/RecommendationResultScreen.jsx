@@ -15,7 +15,7 @@ function scorePlants(scores, recAnswers) {
   }).sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
 }
 
-export default function RecommendationResultScreen({ scores, recAnswers = {}, onBack }) {
+export default function RecommendationResultScreen({ scores, recAnswers = {}, onBack, source = 'precise' }) {
   const [toast, setToast] = useState('');
   const toastTimerRef = useRef(null);
 
@@ -64,7 +64,7 @@ export default function RecommendationResultScreen({ scores, recAnswers = {}, on
           style={{ color: 'var(--ink)', borderColor: 'var(--line)' }}
           onClick={() => onBack && onBack()}
         >
-          리포트로 돌아가기
+          {source === 'quick' ? '결과로 돌아가기' : '리포트로 돌아가기'}
         </button>
       </div>
 

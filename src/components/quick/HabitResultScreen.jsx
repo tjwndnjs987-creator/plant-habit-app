@@ -26,7 +26,7 @@ function handleBuy(name){
   window.open(`https://www.coupang.com/np/search?q=${encodeURIComponent(name + ' 화분')}`, '_blank');
 }
 
-export default function HabitResultScreen({ answers, onRetry, onTendency }){
+export default function HabitResultScreen({ answers, onRetry, onTendency, onRecommend }){
   const scores = calcUserScores(answers);
   const matched = matchPlants(scores);
 
@@ -55,14 +55,25 @@ export default function HabitResultScreen({ answers, onRetry, onTendency }){
         ))}
       </div>
       <div className="center" style={{ gap: 8, flexDirection: 'column' }}>
+        <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+          <button
+            className="btn btn-outline"
+            style={{ flex: 1, color: 'var(--ink)', borderColor: 'var(--line)' }}
+            onClick={() => onTendency(scores)}
+          >
+            📊 내 성향분석
+          </button>
+          <button className="btn btn-dark" style={{ flex: 1 }} onClick={() => onRecommend(scores)}>
+            🌿 식물 추천받기
+          </button>
+        </div>
         <button
           className="btn btn-outline"
-          style={{ color: 'var(--ink)', borderColor: 'var(--line)' }}
-          onClick={() => onTendency(scores)}
+          style={{ color: 'var(--ink)', borderColor: 'var(--line)', fontSize: 12, padding: '8px 16px' }}
+          onClick={onRetry}
         >
-          📊 내 성향분석
+          다시 하기
         </button>
-        <button className="btn btn-dark" onClick={onRetry}>다시 하기</button>
       </div>
     </div>
   );

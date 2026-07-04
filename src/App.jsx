@@ -216,6 +216,21 @@ export default function App(){
     setPreciseStage('select');
   }
 
+  function handleStartQuickRecommend(scores){
+    setTendencyScores(scores);
+    setRecAnswers({});
+    setQuickStage('recq');
+  }
+
+  function handleQuickRecommendComplete(answers){
+    setRecAnswers(answers);
+    setQuickStage('recommend');
+  }
+
+  function handleBackToQuickResultFromRecommend(){
+    setQuickStage('result');
+  }
+
   return (
     <div className="app">
       <div className="hero">
@@ -232,7 +247,12 @@ export default function App(){
             {quickStage === 'intro' && <IntroScreen onStart={handleStart} />}
             {quickStage === 'question' && <HabitQuestionScreen onComplete={handleComplete} />}
             {quickStage === 'result' && (
-              <HabitResultScreen answers={answers} onRetry={handleRetry} onTendency={handleShowQuickTendency} />
+              <HabitResultScreen
+                answers={answers}
+                onRetry={handleRetry}
+                onTendency={handleShowQuickTendency}
+                onRecommend={handleStartQuickRecommend}
+              />
             )}
             {quickStage === 'tendency' && (
               <TendencyScreen
@@ -240,6 +260,17 @@ export default function App(){
                 source="quick"
                 onBack={handleBackToQuickResult}
                 onGoToPrecise={handleGoToPreciseFromQuick}
+              />
+            )}
+            {quickStage === 'recq' && (
+              <RecommendationQuestionScreen onComplete={handleQuickRecommendComplete} />
+            )}
+            {quickStage === 'recommend' && (
+              <RecommendationResultScreen
+                scores={tendencyScores}
+                recAnswers={recAnswers}
+                onBack={handleBackToQuickResultFromRecommend}
+                source="quick"
               />
             )}
           </>
