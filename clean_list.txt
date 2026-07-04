@@ -1,0 +1,33 @@
+﻿
+
+    디렉터리: C:\Users\user\Downloads\vscode_package\package\assets\images\plant_clean
+
+
+Mode                 LastWriteTime         Length Name                                                               
+----                 -------------         ------ ----                                                               
+-a----        2026-07-04  오후 12:40          22621 echeveria_1.png                                                    
+-a----        2026-07-04  오후 12:40          32722 echeveria_2.png                                                    
+-a----        2026-07-04  오후 12:40          28148 echeveria_3.png                                                    
+-a----        2026-07-04  오후 12:40          32358 echeveria_4.png                                                    
+-a----        2026-07-04  오후 12:40          23682 monstera_1.png                                                     
+-a----        2026-07-04  오후 12:40          29693 monstera_2.png                                                     
+-a----        2026-07-04  오후 12:40          35211 monstera_3.png                                                     
+-a----        2026-07-04  오후 12:40          44337 monstera_4.png                                                     
+-a----        2026-07-04  오후 12:40          23839 philodendron_1.png                                                 
+-a----        2026-07-04  오후 12:58          37148 philodendron_2.png                                                 
+-a----        2026-07-04  오후 12:40          36537 philodendron_3.png                                                 
+-a----        2026-07-04  오후 12:40          39533 philodendron_4.png                                                 
+-a----        2026-07-04  오후 12:40          25721 pothos_1.png                                                       
+-a----        2026-07-04  오후 12:40          32401 pothos_2.png                                                       
+-a----        2026-07-04  오후 12:40          41580 pothos_3.png                                                       
+-a----        2026-07-04  오후 12:40          46198 pothos_4.png                                                       
+-a----        2026-07-04  오후 12:40          21427 stucky_1.png                                                       
+-a----        2026-07-04  오후 12:40          16538 stucky_2.png                                                       
+-a----        2026-07-04  오후 12:40          23755 stucky_3.png                                                       
+-a----        2026-07-04  오후 12:40          26129 stucky_4.png                                                       
+-a----        2026-07-04  오후 12:40          21856 zz_1.png                                                           
+-a----        2026-07-04  오후 12:40          24416 zz_2.png                                                           
+-a----        2026-07-04  오후 12:40          31313 zz_3.png                                                           
+-a----        2026-07-04  오후 12:40          37924 zz_4.png                                                           
+
+
