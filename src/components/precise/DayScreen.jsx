@@ -43,8 +43,8 @@ function SlotCard({ slotIndex, slotName, planAmount, wateringLog, day, onSlotCom
 
   const isDone = wateringLog.some(w => w.day === day && w.slot === slotIndex && !w.skipped);
   const doneRecord = wateringLog.find(w => w.day === day && w.slot === slotIndex && !w.skipped);
-  const isOpen = cheatMode || (currentHour >= slotStartHour && currentHour < slotEndHour);
-  const lockMessage = !cheatMode && !isOpen ? `${slotStartHour}시부터 가능해요` : null;
+  const isOpen = cheatMode || day === 1 || (currentHour >= slotStartHour && currentHour < slotEndHour);
+  const lockMessage = !cheatMode && day !== 1 && !isOpen ? `${slotStartHour}시부터 가능해요` : null;
 
   const startFill = (e) => {
     e.preventDefault();
