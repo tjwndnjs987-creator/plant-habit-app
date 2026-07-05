@@ -1,18 +1,35 @@
 import React, { useRef, useState } from 'react';
 import { PLANTS, realPhoto } from '../../data/plants';
 
-function scorePlants(scores, recAnswers) {
-  return PLANTS.map((plant) => {
+function rankByHabit(list, scores, recAnswers) {
+  return list.map((plant) => {
     const habitDist =
       Math.abs(scores.water - plant.water) * 0.4 +
       Math.abs(scores.response - plant.response) * 0.3 +
       Math.abs(scores.consistency - plant.consistency) * 0.3;
     let bonus = 0;
-    if (recAnswers.light && plant.light.includes(recAnswers.light)) bonus += 15;
     if (recAnswers.space && plant.space.includes(recAnswers.space)) bonus += 10;
     if (recAnswers.purpose && plant.purpose.includes(recAnswers.purpose)) bonus += 10;
     return { ...plant, matchScore: Math.max(0, Math.round(100 - habitDist + bonus)) };
-  }).sort((a, b) => b.matchScore - a.matchScore).slice(0, 3);
+  }).sort((a, b) => b.matchScore - a.matchScore);
+}
+
+function scorePlants(scores, recAnswers) {
+  // 1단계: 빛 조건은 필수 — 안 맞으면 후보에서 제외
+  const lightFiltered = recAnswers.light
+    ? PLANTS.filter((plant) => plant.light.includes(recAnswers.light))
+    : PLANTS;
+
+  // 2단계: 남은 후보를 습관 거리 + 공간/목적 보너스로 순위 매기기
+  const ranked = rankByHabit(lightFiltered, scores, recAnswers);
+  if (ranked.length >= 3) {
+    return ranked.slice(0, 3);
+  }
+
+  // 필터링 후 3개 미만이면, 필터 없이 전체에서 채워서 최소 3개는 보여주기
+  const rankedIds = new Set(ranked.map((plant) => plant.id));
+  const fallback = rankByHabit(PLANTS, scores, recAnswers).filter((plant) => !rankedIds.has(plant.id));
+  return [...ranked, ...fallback].slice(0, 3);
 }
 
 export default function RecommendationResultScreen({ scores, recAnswers = {}, onBack, source = 'precise' }) {
