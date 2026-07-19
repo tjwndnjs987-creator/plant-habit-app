@@ -10,6 +10,7 @@ import TendencyScreen from './components/precise/TendencyScreen';
 import RecommendationQuestionScreen from './components/precise/RecommendationQuestionScreen';
 import RecommendationResultScreen from './components/precise/RecommendationResultScreen';
 import StarterKitScreen from './components/precise/StarterKitScreen';
+import PreciseModeSelectScreen from './components/precise/PreciseModeSelectScreen';
 import RealPlantJournalScreen from './components/precise/RealPlantJournalScreen';
 import { loadState, saveState } from './utils/storage';
 
@@ -32,7 +33,7 @@ export default function App(){
   const [activeTab, setActiveTab] = useState('quick');
   const [quickStage, setQuickStage] = useState(initCompleted ? 'result' : (Object.keys(initAnswers||{}).length ? 'question' : 'intro'));
   const [answers, setAnswers] = useState(initAnswers);
-  const [preciseStage, setPreciseStage] = useState('select');
+  const [preciseStage, setPreciseStage] = useState('mode-select');
   const [selectedSpecies, setSelectedSpecies] = useState(null);
   const [plan, setPlan] = useState({ amount: 150, slotsPerDay: 2 });
   const [day, setDay] = useState(1);
@@ -244,8 +245,17 @@ export default function App(){
     setPreciseStage('journal');
   }
 
-  function handleBackFromJournal(){
-    setPreciseStage('starterkit');
+  function handleSelectGameMode(){
+    setPreciseStage('select');
+  }
+
+  function handleSelectJournalMode(){
+    setJournalKit(null);
+    setPreciseStage('journal');
+  }
+
+  function handleBackToModeSelect(){
+    setPreciseStage('mode-select');
   }
 
   return (
@@ -293,6 +303,12 @@ export default function App(){
           </>
         ) : (
           <>
+            {preciseStage === 'mode-select' && (
+              <PreciseModeSelectScreen
+                onSelectGame={handleSelectGameMode}
+                onSelectJournal={handleSelectJournalMode}
+              />
+            )}
             {preciseStage === 'select' && (
               <SpeciesSelectScreen
                 selectedSpecies={selectedSpecies}
@@ -369,7 +385,10 @@ export default function App(){
               />
             )}
             {preciseStage === 'journal' && (
-              <RealPlantJournalScreen kit={journalKit} onBack={handleBackFromJournal} />
+              <RealPlantJournalScreen
+                presetSpeciesId={journalKit ? journalKit.plantId : null}
+                onBackToModeSelect={handleBackToModeSelect}
+              />
             )}
             {preciseStage === 'recommend' && (
               <RecommendationResultScreen

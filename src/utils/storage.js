@@ -3,6 +3,7 @@
 
 const STORAGE_KEY = 'plant_habit_app_state_v1';
 const LAST_DAY_ADVANCE_KEY = 'plant_habit_last_day_advance';
+const JOURNAL_STORAGE_KEY = 'plant_habit_journal_v1';
 
 function safeParse(raw) {
   try {
@@ -73,4 +74,46 @@ function setLastDayAdvanceTime(timestamp) {
   }
 }
 
-export { STORAGE_KEY, loadState, saveState, clearState, getLastDayAdvanceTime, setLastDayAdvanceTime };
+function loadJournalState() {
+  if (typeof window === 'undefined' || !window.localStorage) return null;
+  try {
+    const raw = window.localStorage.getItem(JOURNAL_STORAGE_KEY);
+    if (!raw) return null;
+    return safeParse(raw);
+  } catch (err) {
+    console.warn('Failed to load journal state from localStorage', err);
+    return null;
+  }
+}
+
+function saveJournalState(state) {
+  if (typeof window === 'undefined' || !window.localStorage) return false;
+  try {
+    window.localStorage.setItem(JOURNAL_STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch (err) {
+    console.warn('Failed to save journal state to localStorage', { key: JOURNAL_STORAGE_KEY, err });
+    return false;
+  }
+}
+
+function clearJournalState() {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    window.localStorage.removeItem(JOURNAL_STORAGE_KEY);
+  } catch (err) {
+    console.warn('Failed to clear journal state from localStorage', err);
+  }
+}
+
+export {
+  STORAGE_KEY,
+  loadState,
+  saveState,
+  clearState,
+  getLastDayAdvanceTime,
+  setLastDayAdvanceTime,
+  loadJournalState,
+  saveJournalState,
+  clearJournalState,
+};
