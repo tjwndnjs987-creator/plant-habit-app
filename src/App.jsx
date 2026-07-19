@@ -9,6 +9,8 @@ import ReportScreen from './components/precise/ReportScreen';
 import TendencyScreen from './components/precise/TendencyScreen';
 import RecommendationQuestionScreen from './components/precise/RecommendationQuestionScreen';
 import RecommendationResultScreen from './components/precise/RecommendationResultScreen';
+import StarterKitScreen from './components/precise/StarterKitScreen';
+import RealPlantJournalScreen from './components/precise/RealPlantJournalScreen';
 import { loadState, saveState } from './utils/storage';
 
 const CHEAT_PASSWORD = 'plantcheat';
@@ -46,6 +48,7 @@ export default function App(){
   const [anomalyChecks, setAnomalyChecks] = useState(0);
   const [tendencyScores, setTendencyScores] = useState(null);
   const [recAnswers, setRecAnswers] = useState({});
+  const [journalKit, setJournalKit] = useState(null);
 
   function handleStart(){ setQuickStage('question'); }
   function handleComplete(givenAnswers){ setAnswers(givenAnswers); setQuickStage('result'); }
@@ -231,6 +234,20 @@ export default function App(){
     setQuickStage('result');
   }
 
+  function handleStartStarterKit(scores){
+    setTendencyScores(scores);
+    setPreciseStage('starterkit');
+  }
+
+  function handleGoToJournal(kit){
+    setJournalKit(kit);
+    setPreciseStage('journal');
+  }
+
+  function handleBackFromJournal(){
+    setPreciseStage('starterkit');
+  }
+
   return (
     <div className="app">
       <div className="hero">
@@ -316,6 +333,7 @@ export default function App(){
                 badgeDefinitions={BADGE_DEFINITIONS}
                 onTendency={handleShowTendency}
                 onRecommend={handleStartRecommend}
+                onStarterKit={handleStartStarterKit}
                 onRestart={() => {
                   setPreciseStage('select');
                   setSelectedSpecies(null);
@@ -333,6 +351,7 @@ export default function App(){
                   setAnomalyChecks(0);
                   setTendencyScores(null);
                   setRecAnswers({});
+                  setJournalKit(null);
                 }}
               />
             )}
@@ -341,6 +360,16 @@ export default function App(){
             )}
             {preciseStage === 'recq' && (
               <RecommendationQuestionScreen onComplete={handleRecommendComplete} />
+            )}
+            {preciseStage === 'starterkit' && (
+              <StarterKitScreen
+                scores={tendencyScores}
+                onBack={handleBackToReport}
+                onStartJournal={handleGoToJournal}
+              />
+            )}
+            {preciseStage === 'journal' && (
+              <RealPlantJournalScreen kit={journalKit} onBack={handleBackFromJournal} />
             )}
             {preciseStage === 'recommend' && (
               <RecommendationResultScreen

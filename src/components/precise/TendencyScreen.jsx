@@ -31,7 +31,7 @@ const TENDENCY_TYPES = [
     careTip: '특별히 조심할 건 없지만, 새 식물을 들일 때마다 그 식물만의 특성은 한 번씩 확인해보세요.' },
 ];
 
-function getTendencyType(scores) {
+export function getTendencyType(scores) {
   return TENDENCY_TYPES.find((t) => t.match(scores));
 }
 

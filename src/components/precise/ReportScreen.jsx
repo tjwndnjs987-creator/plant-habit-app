@@ -38,6 +38,7 @@ export default function ReportScreen({
   onRestart,
   onTendency,
   onRecommend,
+  onStarterKit,
 }) {
   const totalSlots = wateringLog.length;
   const doneSlots = wateringLog.filter((w) => !w.skipped).length;
@@ -124,6 +125,9 @@ export default function ReportScreen({
             🌿 식물 추천받기
           </button>
         </div>
+        <button className="btn btn-dark" style={{ width: '100%' }} onClick={() => onStarterKit(scores)}>
+          🎁 Starter Kit 추천받기
+        </button>
         <button
           className="btn btn-outline"
           style={{ color: 'var(--ink)', borderColor: 'var(--line)', fontSize: 12, padding: '8px 16px' }}
