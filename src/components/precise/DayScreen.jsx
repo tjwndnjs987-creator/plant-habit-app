@@ -17,9 +17,9 @@ const SLOT_FILL_RATE_BASE = 300;
 const SLOT_FILL_MS = 3600;
 
 function getGrowthStage(day) {
-  if (day <= 5) return 1;
-  if (day <= 11) return 2;
-  if (day <= 17) return 3;
+  if (day <= 2) return 1;
+  if (day <= 4) return 2;
+  if (day <= 6) return 3;
   return 4;
 }
 
@@ -199,7 +199,7 @@ export default function DayScreen({
   return (
     <div className="day-screen">
       <div className="day-head">
-        <div className="dnum">Day {day} / 21</div>
+        <div className="dnum">Day {day} / 7</div>
         <div style={{ fontSize: '11.5px', color: 'var(--ink-soft)' }}>
           {plant?.name}
         </div>

@@ -18,8 +18,8 @@ const BADGE_DEFINITIONS = [
   { id: 'combo5', label: '⚡ 5연속 정답' },
   { id: 'sharp_eye', label: '🔍 탐정의 눈썰미' },
   { id: 'perfect_water', label: '🎯 완벽한 물주기' },
-  { id: 'day10', label: '📅 10일 돌파' },
-  { id: 'graduate', label: '🎓 21일 완주' },
+  { id: 'day4', label: '📅 4일 돌파' },
+  { id: 'graduate', label: '🎓 7일 완주' },
 ];
 
 export default function App(){
@@ -68,7 +68,7 @@ export default function App(){
   }
   
   function maybeSpawnAnomaly(currentDay){
-    if(anomaly === null && Math.random() < 0.45){
+    if(anomaly === null && Math.random() < 0.6){
       const choices = ['spot', 'bug', 'edge'];
       const newAnomaly = choices[Math.floor(Math.random() * choices.length)];
       setAnomaly(newAnomaly);
@@ -167,13 +167,13 @@ export default function App(){
     setDay(newDay);
     setResponseScore(newResponseScore);
 
-    if(newDay > 21){
+    if(newDay > 7){
       const badgeSet = new Set(unlockedBadges);
-      if (points > 0) badgeSet.add('graduate');
+      if (day >= 7) badgeSet.add('graduate');
       if (combo >= 3) badgeSet.add('combo3');
       if (combo >= 5) badgeSet.add('combo5');
       if (anomalyChecks >= 3) badgeSet.add('sharp_eye');
-      if (day >= 10) badgeSet.add('day10');
+      if (day >= 4) badgeSet.add('day4');
       if (wateringLog.some((w) => !w.skipped)) badgeSet.add('first_water');
       setUnlockedBadges(Array.from(badgeSet));
       setPreciseStage('report');

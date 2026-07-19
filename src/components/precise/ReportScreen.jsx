@@ -23,9 +23,9 @@ function getWaterTendencyLabel(avgAmountDev) {
 }
 
 function getConfidenceLabel(totalSlots) {
-  if (totalSlots >= 30) return '꽤 일관됨';
-  if (totalSlots >= 15) return '참고할만함';
-  return '참고만';
+  if (totalSlots >= 12) return '꽤 일관된 패턴이에요';
+  if (totalSlots >= 6) return '어느 정도 참고할 만해요';
+  return '아직 참고 정도로만 봐주세요';
 }
 
 export default function ReportScreen({
@@ -60,7 +60,7 @@ export default function ReportScreen({
     <div className="result-card">
       <div className="celebrate">🎉🌿🎉</div>
       <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 18, marginBottom: 4, textAlign: 'center' }}>
-        21일 완주, 정말 수고하셨어요!
+        7일 완주, 정말 수고하셨어요!
       </div>
       <div className="report-metadata">
         급수 {totalSlots}회 · 이상반응 체크 {anomalyChecks}회 관찰 기준 — {confidenceLabel}
@@ -98,7 +98,7 @@ export default function ReportScreen({
       </div>
 
       <div className="report-summary">
-        이 결과는 확정된 진단이 아니라, 21일간의 선택을 돌아보는 참고 자료예요.
+        이 결과는 확정된 진단이 아니라, 7일간의 선택을 돌아보는 참고 자료예요.
       </div>
 
       <div className="plant-grid">

@@ -24,7 +24,7 @@ export default function PlanSetupScreen({ plan, onChangePlan, onStart }) {
         </div>
       </div>
       <div className="center">
-        <button className="btn btn-dark" onClick={onStart}>21일 시작하기</button>
+        <button className="btn btn-dark" onClick={onStart}>7일 시작하기</button>
       </div>
     </div>
   );

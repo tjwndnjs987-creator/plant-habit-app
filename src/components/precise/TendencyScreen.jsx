@@ -62,10 +62,10 @@ export default function TendencyScreen({ scores, onBack, source = 'precise', onG
 
       {source === 'quick' ? (
         <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 16, lineHeight: 1.6 }}>
-          이 결과는 25문항에 스스로 답한 자기진단이에요. 실제 행동은 다를 수 있어요. 21일 정밀검사를 해보면 진짜 습관을 더 정확히 알 수 있어요.
+          이 결과는 25문항에 스스로 답한 자기진단이에요. 실제 행동은 다를 수 있어요. 7일 정밀검사를 해보면 진짜 습관을 더 정확히 알 수 있어요.
         </div>
       ) : (
-        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 16 }}>21일간의 관찰을 바탕으로 한 참고용 분석이에요.</div>
+        <div style={{ fontSize: 11, color: 'var(--ink-soft)', marginBottom: 16 }}>7일간의 관찰을 바탕으로 한 참고용 분석이에요.</div>
       )}
 
       <div className="center" style={{ gap: 8, flexDirection: 'column' }}>
