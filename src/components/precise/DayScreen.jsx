@@ -142,6 +142,7 @@ export default function DayScreen({
   onCheckStatus,
   onNextDay,
   onSlotComplete,
+  onBackToModeSelect,
 }) {
   const [stageChanged, setStageChanged] = useState(false);
   const [moodLine, setMoodLine] = useState('');
@@ -200,8 +201,11 @@ export default function DayScreen({
     <div className="day-screen">
       <div className="day-head">
         <div className="dnum">Day {day} / 7</div>
-        <div style={{ fontSize: '11.5px', color: 'var(--ink-soft)' }}>
-          {plant?.name}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: '11.5px', color: 'var(--ink-soft)' }}>{plant?.name}</span>
+          {onBackToModeSelect && (
+            <button className="guide-btn" onClick={onBackToModeSelect}>🔄 다른 모드 보기</button>
+          )}
         </div>
       </div>
 

@@ -285,7 +285,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
     <div>
       <div className="day-head" style={{ marginBottom: 10 }}>
         <div className="dnum">{species ? species.name : '내 식물'}</div>
-        <button className="guide-btn" onClick={onBackToModeSelect}>← 모드 선택으로</button>
+        <button className="guide-btn" onClick={onBackToModeSelect}>🔄 다른 모드 보기</button>
       </div>
 
       <div className="journal-photo-wrap">

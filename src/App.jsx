@@ -55,12 +55,22 @@ export default function App(){
   const [journalKit, setJournalKit] = useState(savedPrecise ? (savedPrecise.journalKit ?? null) : null);
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [journalResetKey, setJournalResetKey] = useState(0);
+  // mode-select/journal은 게임 화면이 아니므로 여기 포함 안 됨 — "다른 모드 보기"로
+  // 나갔다가 다시 게임을 고르면 여기 저장된 지점으로 돌아가기 위한 값.
+  const [lastGameStage, setLastGameStage] = useState(savedPrecise && savedPrecise.lastGameStage ? savedPrecise.lastGameStage : 'select');
+
+  useEffect(() => {
+    if (preciseStage !== 'mode-select' && preciseStage !== 'journal') {
+      setLastGameStage(preciseStage);
+    }
+  }, [preciseStage]);
 
   useEffect(() => {
     saveState({
       activeTab,
       precise: {
         preciseStage,
+        lastGameStage,
         selectedSpecies,
         plan,
         day,
@@ -80,7 +90,7 @@ export default function App(){
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    activeTab, preciseStage, selectedSpecies, plan, day, anomaly, anomalyStartDay,
+    activeTab, preciseStage, lastGameStage, selectedSpecies, plan, day, anomaly, anomalyStartDay,
     responseScore, points, combo, wateringLog, statusCheckedToday, unlockedBadges,
     anomalyChecks, tendencyScores, recAnswers, journalKit,
   ]);
@@ -280,7 +290,7 @@ export default function App(){
   }
 
   function handleSelectGameMode(){
-    setPreciseStage('select');
+    setPreciseStage(lastGameStage);
   }
 
   function handleSelectJournalMode(){
@@ -419,6 +429,7 @@ export default function App(){
                 onCheckStatus={handleCheckStatus}
                 onNextDay={handleNextDay}
                 onSlotComplete={handleSlotComplete}
+                onBackToModeSelect={handleBackToModeSelect}
               />
             )}
             {preciseStage === 'report' && (
