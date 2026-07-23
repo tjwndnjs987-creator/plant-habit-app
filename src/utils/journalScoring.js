@@ -86,6 +86,8 @@ export function computeWaterAxis(waterLogs, speciesId) {
     recommendedDays,
     avgAmount,
     recommendedAmount,
+    intervalDeviationPct,
+    amountDeviationPct,
   };
 }
 
@@ -111,4 +113,21 @@ export function computeConsistencyAxis(waterLogs, issueLogs) {
   }
   const value = clamp(Math.round(100 - maxGap * 8), 0, 100);
   return { value, insufficient: false, maxGap, recordCount: allDates.length };
+}
+
+// 목표 달성 여부 판정. axes = { water, response, consistency } (위 3개 compute* 함수의 결과)
+export function isGoalAchieved(goal, axes) {
+  if (goal.type === 'interval') {
+    return !axes.water.insufficient && Math.abs(axes.water.intervalDeviationPct) <= 20;
+  }
+  if (goal.type === 'response') {
+    return !axes.response.insufficient && axes.response.value >= 70;
+  }
+  if (goal.type === 'consistency') {
+    return !axes.consistency.insufficient && axes.consistency.maxGap <= 5;
+  }
+  if (goal.type === 'custom') {
+    return !!goal.manuallyCompleted;
+  }
+  return false;
 }

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PLANTS, realPhoto } from '../../data/plants';
 import ReportScreen from './ReportScreen';
+import GoalSettingScreen from './GoalSettingScreen';
 import { loadJournalState, saveJournalState, clearJournalState } from '../../utils/storage';
-import { computeWaterAxis, computeResponseAxis, computeConsistencyAxis } from '../../utils/journalScoring';
+import { computeWaterAxis, computeResponseAxis, computeConsistencyAxis, isGoalAchieved } from '../../utils/journalScoring';
 
 const SYMPTOM_OPTIONS = [
   { id: 'spot', label: '반점' },
@@ -63,13 +64,20 @@ function createEmptyJournal(speciesId) {
     photo: null,
     waterLogs: [],
     issueLogs: [],
+    goals: null, // null = 아직 목표 설정 전, [] 이상 = 설정 완료
     startedAt: new Date().toISOString(),
     ended: false,
     endReason: null,
   };
 }
 
-export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSelect }) {
+function deriveView(journal) {
+  if (!journal.speciesId) return 'select-species';
+  if (journal.goals === null || journal.goals === undefined) return 'goal-setting';
+  return 'main';
+}
+
+export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBackToModeSelect }) {
   const [journal, setJournal] = useState(() => {
     const saved = loadJournalState();
     if (saved && !saved.ended) {
@@ -83,7 +91,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSe
     }
     return createEmptyJournal(presetSpeciesId || null);
   });
-  const [view, setView] = useState(() => (journal.speciesId ? 'main' : 'select-species'));
+  const [view, setView] = useState(() => deriveView(journal));
   const [reportMode, setReportMode] = useState(null); // null | 'preview' | 'final'
   const [waterModalOpen, setWaterModalOpen] = useState(false);
   const [waterAmount, setWaterAmount] = useState(150);
@@ -108,7 +116,19 @@ export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSe
 
   function handleSelectSpecies(id) {
     setJournal((prev) => ({ ...prev, speciesId: id }));
+    setView('goal-setting');
+  }
+
+  function handleStartGoals(goals) {
+    setJournal((prev) => ({ ...prev, goals }));
     setView('main');
+  }
+
+  function handleToggleCustomGoal(goalId) {
+    setJournal((prev) => ({
+      ...prev,
+      goals: prev.goals.map((g) => (g.id === goalId ? { ...g, manuallyCompleted: !g.manuallyCompleted } : g)),
+    }));
   }
 
   async function handlePhotoChange(e) {
@@ -215,6 +235,11 @@ export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSe
     );
   }
 
+  // ---- 목표 설정 ----
+  if (view === 'goal-setting') {
+    return <GoalSettingScreen scores={scores} onStart={handleStartGoals} />;
+  }
+
   // ---- 리포트 (미리보기 또는 종료 결과) ----
   if (reportMode) {
     const { water, response, consistency } = computeScores();
@@ -253,6 +278,8 @@ export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSe
     ...journal.waterLogs.map((w) => ({ ...w, type: 'water' })),
     ...journal.issueLogs.map((l) => ({ ...l, type: 'issue' })),
   ].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const goalAxes = computeScores();
+  const goals = journal.goals || [];
 
   return (
     <div>
@@ -286,6 +313,27 @@ export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSe
         <button className="status-btn" onClick={openWaterModal}>💧 물주기 완료</button>
         <button className="status-btn" onClick={startIssueFlow}>🔍 이상 발견</button>
       </div>
+
+      {goals.length > 0 && (
+        <>
+          <div className="section-title">내 목표</div>
+          <div className="journal-record-list">
+            {goals.map((g) => {
+              const achieved = isGoalAchieved(g, goalAxes);
+              return (
+                <div className="journal-record-item" key={g.id}>
+                  <span>{achieved ? '✅' : '⬜'} {g.label}</span>
+                  {g.type === 'custom' && (
+                    <button className="guide-btn" onClick={() => handleToggleCustomGoal(g.id)}>
+                      {achieved ? '취소' : '달성했어요'}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {journal.waterLogs.length >= 2 && (
         <div className="center" style={{ marginBottom: 8 }}>

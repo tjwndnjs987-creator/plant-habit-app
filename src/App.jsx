@@ -387,6 +387,7 @@ export default function App(){
             {preciseStage === 'journal' && (
               <RealPlantJournalScreen
                 presetSpeciesId={journalKit ? journalKit.plantId : null}
+                scores={tendencyScores}
                 onBackToModeSelect={handleBackToModeSelect}
               />
             )}
