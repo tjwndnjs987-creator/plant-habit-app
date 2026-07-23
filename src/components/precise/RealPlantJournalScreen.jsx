@@ -72,7 +72,15 @@ function createEmptyJournal(speciesId) {
 export default function RealPlantJournalScreen({ presetSpeciesId, onBackToModeSelect }) {
   const [journal, setJournal] = useState(() => {
     const saved = loadJournalState();
-    if (saved && !saved.ended) return saved;
+    if (saved && !saved.ended) {
+      const hasRecords = (saved.waterLogs && saved.waterLogs.length > 0) || (saved.issueLogs && saved.issueLogs.length > 0);
+      // 아직 아무 기록도 없는 빈 저널이면 StarterKit에서 고른 식물로 덮어써도 안전함.
+      // 실제 기록이 있는 저널은 절대 조용히 버리지 않고 그대로 이어감.
+      if (hasRecords || !presetSpeciesId || saved.speciesId === presetSpeciesId) {
+        return saved;
+      }
+      return createEmptyJournal(presetSpeciesId);
+    }
     return createEmptyJournal(presetSpeciesId || null);
   });
   const [view, setView] = useState(() => (journal.speciesId ? 'main' : 'select-species'));
