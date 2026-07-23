@@ -26,15 +26,15 @@ function loadState() {
   }
 }
 
-function saveState(state) {
+function saveState(partialState) {
   if (typeof window === 'undefined' || !window.localStorage) return;
   try {
-    const toSave = Object.assign({}, state);
+    // quick/precise 등 최상위 키 단위로 얕은 병합. 안 그러면 정밀검사 상태를 저장할 때
+    // 빠른진단 답변(quick)이, 혹은 그 반대가 조용히 날아감.
+    const existing = loadState() || {};
+    const toSave = { ...existing, ...partialState };
     if (typeof toSave.version === 'undefined') toSave.version = 1;
     toSave.updatedAt = new Date().toISOString();
-    // Avoid huge console logs: measure size for warning context if needed
-    let size = 0;
-    try { size = JSON.stringify(toSave).length; } catch(e) { size = -1; }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
     return true;
   } catch (err) {
@@ -51,6 +51,18 @@ function clearState() {
   } catch (err) {
     console.warn('Failed to clear app state from localStorage', err);
     return false;
+  }
+}
+
+function clearPreciseState() {
+  if (typeof window === 'undefined' || !window.localStorage) return;
+  try {
+    const existing = loadState() || {};
+    delete existing.precise;
+    existing.updatedAt = new Date().toISOString();
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(existing));
+  } catch (err) {
+    console.warn('Failed to clear precise state from localStorage', err);
   }
 }
 
@@ -111,6 +123,7 @@ export {
   loadState,
   saveState,
   clearState,
+  clearPreciseState,
   getLastDayAdvanceTime,
   setLastDayAdvanceTime,
   loadJournalState,

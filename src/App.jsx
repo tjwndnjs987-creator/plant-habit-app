@@ -12,7 +12,7 @@ import RecommendationResultScreen from './components/precise/RecommendationResul
 import StarterKitScreen from './components/precise/StarterKitScreen';
 import PreciseModeSelectScreen from './components/precise/PreciseModeSelectScreen';
 import RealPlantJournalScreen from './components/precise/RealPlantJournalScreen';
-import { loadState, saveState } from './utils/storage';
+import { loadState, saveState, clearPreciseState, clearJournalState } from './utils/storage';
 
 const CHEAT_PASSWORD = 'plantcheat';
 const BADGE_DEFINITIONS = [
@@ -25,31 +25,65 @@ const BADGE_DEFINITIONS = [
   { id: 'graduate', label: '🎓 7일 완주' },
 ];
 
+const DEFAULT_PLAN = { amount: 150, slotsPerDay: 2 };
+
 export default function App(){
   const saved = loadState();
   const initCompleted = saved && saved.quick && saved.quick.completed;
   const initAnswers = saved && saved.quick && saved.quick.answers ? saved.quick.answers : {};
+  const savedPrecise = saved && saved.precise ? saved.precise : null;
 
-  const [activeTab, setActiveTab] = useState('quick');
+  const [activeTab, setActiveTab] = useState(saved && saved.activeTab ? saved.activeTab : 'quick');
   const [quickStage, setQuickStage] = useState(initCompleted ? 'result' : (Object.keys(initAnswers||{}).length ? 'question' : 'intro'));
   const [answers, setAnswers] = useState(initAnswers);
-  const [preciseStage, setPreciseStage] = useState('mode-select');
-  const [selectedSpecies, setSelectedSpecies] = useState(null);
-  const [plan, setPlan] = useState({ amount: 150, slotsPerDay: 2 });
-  const [day, setDay] = useState(1);
-  const [anomaly, setAnomaly] = useState(null);
-  const [anomalyStartDay, setAnomalyStartDay] = useState(null);
-  const [responseScore, setResponseScore] = useState(100);
-  const [points, setPoints] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [wateringLog, setWateringLog] = useState([]);
-  const [statusCheckedToday, setStatusCheckedToday] = useState(false);
-  const [cheatMode, setCheatMode] = useState(false);
-  const [unlockedBadges, setUnlockedBadges] = useState([]);
-  const [anomalyChecks, setAnomalyChecks] = useState(0);
-  const [tendencyScores, setTendencyScores] = useState(null);
-  const [recAnswers, setRecAnswers] = useState({});
-  const [journalKit, setJournalKit] = useState(null);
+  const [preciseStage, setPreciseStage] = useState(savedPrecise && savedPrecise.preciseStage ? savedPrecise.preciseStage : 'mode-select');
+  const [selectedSpecies, setSelectedSpecies] = useState(savedPrecise ? (savedPrecise.selectedSpecies ?? null) : null);
+  const [plan, setPlan] = useState(savedPrecise && savedPrecise.plan ? savedPrecise.plan : DEFAULT_PLAN);
+  const [day, setDay] = useState(savedPrecise && typeof savedPrecise.day === 'number' ? savedPrecise.day : 1);
+  const [anomaly, setAnomaly] = useState(savedPrecise ? (savedPrecise.anomaly ?? null) : null);
+  const [anomalyStartDay, setAnomalyStartDay] = useState(savedPrecise ? (savedPrecise.anomalyStartDay ?? null) : null);
+  const [responseScore, setResponseScore] = useState(savedPrecise && typeof savedPrecise.responseScore === 'number' ? savedPrecise.responseScore : 100);
+  const [points, setPoints] = useState(savedPrecise && typeof savedPrecise.points === 'number' ? savedPrecise.points : 0);
+  const [combo, setCombo] = useState(savedPrecise && typeof savedPrecise.combo === 'number' ? savedPrecise.combo : 0);
+  const [wateringLog, setWateringLog] = useState(savedPrecise && Array.isArray(savedPrecise.wateringLog) ? savedPrecise.wateringLog : []);
+  const [statusCheckedToday, setStatusCheckedToday] = useState(savedPrecise ? !!savedPrecise.statusCheckedToday : false);
+  const [cheatMode, setCheatMode] = useState(false); // 치트모드는 절대 저장/복원하지 않음 — 항상 일반 모드로 시작
+  const [unlockedBadges, setUnlockedBadges] = useState(savedPrecise && Array.isArray(savedPrecise.unlockedBadges) ? savedPrecise.unlockedBadges : []);
+  const [anomalyChecks, setAnomalyChecks] = useState(savedPrecise && typeof savedPrecise.anomalyChecks === 'number' ? savedPrecise.anomalyChecks : 0);
+  const [tendencyScores, setTendencyScores] = useState(savedPrecise ? (savedPrecise.tendencyScores ?? null) : null);
+  const [recAnswers, setRecAnswers] = useState(savedPrecise && savedPrecise.recAnswers ? savedPrecise.recAnswers : {});
+  const [journalKit, setJournalKit] = useState(savedPrecise ? (savedPrecise.journalKit ?? null) : null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
+  const [journalResetKey, setJournalResetKey] = useState(0);
+
+  useEffect(() => {
+    saveState({
+      activeTab,
+      precise: {
+        preciseStage,
+        selectedSpecies,
+        plan,
+        day,
+        anomaly,
+        anomalyStartDay,
+        responseScore,
+        points,
+        combo,
+        wateringLog,
+        statusCheckedToday,
+        unlockedBadges,
+        anomalyChecks,
+        tendencyScores,
+        recAnswers,
+        journalKit,
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    activeTab, preciseStage, selectedSpecies, plan, day, anomaly, anomalyStartDay,
+    responseScore, points, combo, wateringLog, statusCheckedToday, unlockedBadges,
+    anomalyChecks, tendencyScores, recAnswers, journalKit,
+  ]);
 
   function handleStart(){ setQuickStage('question'); }
   function handleComplete(givenAnswers){ setAnswers(givenAnswers); setQuickStage('result'); }
@@ -258,6 +292,49 @@ export default function App(){
     setPreciseStage('mode-select');
   }
 
+  function handleResetClick(){
+    setResetConfirmOpen(true);
+  }
+
+  function handleCancelReset(){
+    setResetConfirmOpen(false);
+  }
+
+  function handleConfirmReset(){
+    if (preciseStage === 'journal') {
+      // RealPlantJournalScreen은 자체 localStorage 키로 상태를 관리하므로,
+      // 그 키를 지우고 key prop을 바꿔 컴포넌트를 강제로 재마운트시켜야
+      // 메모리에 남아있던 이전 저널 상태가 아니라 진짜 빈 상태로 시작함.
+      clearJournalStateAndReset();
+    } else {
+      setPreciseStage('select');
+      setSelectedSpecies(null);
+      setPlan(DEFAULT_PLAN);
+      setDay(1);
+      setAnomaly(null);
+      setAnomalyStartDay(null);
+      setResponseScore(100);
+      setPoints(0);
+      setCombo(0);
+      setWateringLog([]);
+      setStatusCheckedToday(false);
+      setCheatMode(false);
+      setUnlockedBadges([]);
+      setAnomalyChecks(0);
+      setTendencyScores(null);
+      setRecAnswers({});
+      setJournalKit(null);
+      clearPreciseState();
+    }
+    setResetConfirmOpen(false);
+  }
+
+  function clearJournalStateAndReset(){
+    clearJournalState();
+    setJournalKit(null);
+    setJournalResetKey((k) => k + 1);
+  }
+
   return (
     <div className="app">
       <div className="hero">
@@ -266,6 +343,11 @@ export default function App(){
         <div className="tabs">
           <button className={`tab ${activeTab === 'quick' ? 'active' : ''}`} onClick={() => setActiveTab('quick')}>빠른 진단</button>
           <button className={`tab ${activeTab === 'precise' ? 'active' : ''}`} onClick={() => setActiveTab('precise')}>정밀 검사</button>
+          {activeTab === 'precise' && (
+            <button className="guide-btn" style={{ marginLeft: 'auto' }} onClick={handleResetClick}>
+              🔄 {preciseStage === 'journal' ? '저널 리셋하기' : '게임 리셋하기'}
+            </button>
+          )}
         </div>
       </div>
       <div className="body-wrap">
@@ -386,6 +468,7 @@ export default function App(){
             )}
             {preciseStage === 'journal' && (
               <RealPlantJournalScreen
+                key={journalResetKey}
                 presetSpeciesId={journalKit ? journalKit.plantId : null}
                 scores={tendencyScores}
                 onBackToModeSelect={handleBackToModeSelect}
@@ -401,6 +484,25 @@ export default function App(){
           </>
         )}
       </div>
+
+      {resetConfirmOpen && (
+        <div className="modal-overlay" onClick={handleCancelReset}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-title">정말 처음부터 다시 시작하시겠어요?</div>
+            <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', marginBottom: 16 }}>
+              지금까지 기록이 모두 사라져요.
+            </div>
+            <div className="center" style={{ gap: 8 }}>
+              <button className="btn btn-outline" style={{ color: 'var(--ink)', borderColor: 'var(--line)' }} onClick={handleCancelReset}>
+                취소
+              </button>
+              <button className="btn btn-dark" onClick={handleConfirmReset}>
+                리셋하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
