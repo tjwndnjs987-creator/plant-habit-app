@@ -227,7 +227,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
           {PLANTS.map((p) => (
             <div key={p.id} className="plant-card" style={{ cursor: 'pointer' }} onClick={() => handleSelectSpecies(p.id)}>
               <img src={realPhoto(p.id)} alt={p.name} />
-              <div className="pname">{p.name}</div>
+              <div className="pname" style={{ color: 'var(--ink)' }}>{p.name}</div>
             </div>
           ))}
         </div>
@@ -310,13 +310,13 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
       )}
 
       <div className="status-row">
-        <button className="status-btn" onClick={openWaterModal}>💧 물주기 완료</button>
-        <button className="status-btn" onClick={startIssueFlow}>🔍 이상 발견</button>
+        <button className="status-btn" style={{ color: 'var(--ink)' }} onClick={openWaterModal}>💧 물주기 완료</button>
+        <button className="status-btn" style={{ color: 'var(--ink)' }} onClick={startIssueFlow}>🔍 이상 발견</button>
       </div>
 
       {goals.length > 0 && (
         <>
-          <div className="section-title">내 목표</div>
+          <div className="section-title" style={{ color: 'rgba(243,241,232,.85)' }}>내 목표</div>
           <div className="journal-record-list">
             {goals.map((g) => {
               const achieved = isGoalAchieved(g, goalAxes);
@@ -339,7 +339,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
         <div className="center" style={{ marginBottom: 8 }}>
           <button
             className="btn btn-outline"
-            style={{ color: 'var(--ink)', borderColor: 'var(--line)', width: '100%' }}
+            style={{ color: 'var(--surface)', borderColor: 'var(--line-dark)', width: '100%' }}
             onClick={() => setReportMode('preview')}
           >
             📊 리포트 보기
@@ -347,7 +347,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
         </div>
       )}
 
-      <div className="section-title" style={{ marginTop: 16 }}>기록 ({totalRecords})</div>
+      <div className="section-title" style={{ marginTop: 16, color: 'rgba(243,241,232,.85)' }}>기록 ({totalRecords})</div>
       <div className="journal-record-list">
         {records.map((r, i) => (
           <div className="journal-record-item" key={i}>
@@ -360,7 +360,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
           </div>
         ))}
         {totalRecords === 0 && (
-          <div style={{ fontSize: 12, color: 'var(--ink-soft)', textAlign: 'center', padding: '10px 0' }}>
+          <div style={{ fontSize: 12, color: 'rgba(243,241,232,.6)', textAlign: 'center', padding: '10px 0' }}>
             아직 기록이 없어요. 물을 주거나 이상을 발견하면 기록해주세요.
           </div>
         )}
@@ -369,7 +369,7 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
       <div className="center">
         <button
           className="btn btn-outline"
-          style={{ color: 'var(--ink)', borderColor: 'var(--line)', fontSize: 12, padding: '8px 16px' }}
+          style={{ color: 'var(--surface)', borderColor: 'var(--line-dark)', fontSize: 12, padding: '8px 16px' }}
           onClick={() => setEndModalOpen(true)}
         >
           이 식물 키우기 종료
