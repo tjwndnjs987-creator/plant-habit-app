@@ -36,7 +36,8 @@ const STARTER_KITS = {
 };
 
 export default function StarterKitScreen({ scores, onBack, onStartJournal }) {
-  const type = getTendencyType(scores);
+  const safeScores = scores || { water: 50, response: 50, consistency: 50 };
+  const type = getTendencyType(safeScores);
   const kit = STARTER_KITS[type.id];
 
   function handleBuy() {

@@ -11,6 +11,7 @@ import RecommendationQuestionScreen from './components/precise/RecommendationQue
 import RecommendationResultScreen from './components/precise/RecommendationResultScreen';
 import StarterKitScreen from './components/precise/StarterKitScreen';
 import PreciseModeSelectScreen from './components/precise/PreciseModeSelectScreen';
+import JournalIntroScreen from './components/precise/JournalIntroScreen';
 import RealPlantJournalScreen from './components/precise/RealPlantJournalScreen';
 import { loadState, saveState, clearPreciseState, clearJournalState } from './utils/storage';
 
@@ -54,13 +55,12 @@ export default function App(){
   const [recAnswers, setRecAnswers] = useState(savedPrecise && savedPrecise.recAnswers ? savedPrecise.recAnswers : {});
   const [journalKit, setJournalKit] = useState(savedPrecise ? (savedPrecise.journalKit ?? null) : null);
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
-  const [journalResetKey, setJournalResetKey] = useState(0);
-  // mode-select/journal은 게임 화면이 아니므로 여기 포함 안 됨 — "다른 모드 보기"로
-  // 나갔다가 다시 게임을 고르면 여기 저장된 지점으로 돌아가기 위한 값.
+  // mode-select/journal-intro/journal은 게임 화면이 아니므로 여기 포함 안 됨 — "다른 모드
+  // 보기"로 나갔다가 다시 게임을 고르면 여기 저장된 지점으로 돌아가기 위한 값.
   const [lastGameStage, setLastGameStage] = useState(savedPrecise && savedPrecise.lastGameStage ? savedPrecise.lastGameStage : 'select');
 
   useEffect(() => {
-    if (preciseStage !== 'mode-select' && preciseStage !== 'journal') {
+    if (preciseStage !== 'mode-select' && preciseStage !== 'journal-intro' && preciseStage !== 'journal') {
       setLastGameStage(preciseStage);
     }
   }, [preciseStage]);
@@ -295,11 +295,24 @@ export default function App(){
 
   function handleSelectJournalMode(){
     setJournalKit(null);
-    setPreciseStage('journal');
+    setPreciseStage('journal-intro');
   }
 
   function handleBackToModeSelect(){
     setPreciseStage('mode-select');
+  }
+
+  function handleGoToQuickFromJournalIntro(){
+    setActiveTab('quick');
+  }
+
+  function handleGoToStarterKitFromJournalIntro(){
+    setPreciseStage('starterkit');
+  }
+
+  function handleNeedNewPlant(){
+    setJournalKit(null);
+    setPreciseStage('journal-intro');
   }
 
   function handleResetClick(){
@@ -312,10 +325,11 @@ export default function App(){
 
   function handleConfirmReset(){
     if (preciseStage === 'journal') {
-      // RealPlantJournalScreen은 자체 localStorage 키로 상태를 관리하므로,
-      // 그 키를 지우고 key prop을 바꿔 컴포넌트를 강제로 재마운트시켜야
-      // 메모리에 남아있던 이전 저널 상태가 아니라 진짜 빈 상태로 시작함.
-      clearJournalStateAndReset();
+      // 식물 선택은 이제 StarterKit을 통해서만 가능하므로, 리셋 후에는 컴포넌트를
+      // 그 자리에서 재마운트하는 대신 journal-intro로 내보내 새 추천을 받게 함.
+      clearJournalState();
+      setJournalKit(null);
+      setPreciseStage('journal-intro');
     } else {
       setPreciseStage('select');
       setSelectedSpecies(null);
@@ -339,12 +353,6 @@ export default function App(){
     setResetConfirmOpen(false);
   }
 
-  function clearJournalStateAndReset(){
-    clearJournalState();
-    setJournalKit(null);
-    setJournalResetKey((k) => k + 1);
-  }
-
   return (
     <div className="app">
       <div className="hero">
@@ -353,7 +361,7 @@ export default function App(){
         <div className="tabs">
           <button className={`tab ${activeTab === 'quick' ? 'active' : ''}`} onClick={() => setActiveTab('quick')}>빠른 진단</button>
           <button className={`tab ${activeTab === 'precise' ? 'active' : ''}`} onClick={() => setActiveTab('precise')}>정밀 검사</button>
-          {activeTab === 'precise' && (
+          {activeTab === 'precise' && preciseStage !== 'mode-select' && preciseStage !== 'journal-intro' && (
             <button className="guide-btn" style={{ marginLeft: 'auto' }} onClick={handleResetClick}>
               🔄 {preciseStage === 'journal' ? '저널 리셋하기' : '게임 리셋하기'}
             </button>
@@ -399,6 +407,12 @@ export default function App(){
               <PreciseModeSelectScreen
                 onSelectGame={handleSelectGameMode}
                 onSelectJournal={handleSelectJournalMode}
+              />
+            )}
+            {preciseStage === 'journal-intro' && (
+              <JournalIntroScreen
+                onGoToQuick={handleGoToQuickFromJournalIntro}
+                onGoToStarterKit={handleGoToStarterKitFromJournalIntro}
               />
             )}
             {preciseStage === 'select' && (
@@ -479,10 +493,10 @@ export default function App(){
             )}
             {preciseStage === 'journal' && (
               <RealPlantJournalScreen
-                key={journalResetKey}
                 presetSpeciesId={journalKit ? journalKit.plantId : null}
                 scores={tendencyScores}
                 onBackToModeSelect={handleBackToModeSelect}
+                onNeedNewPlant={handleNeedNewPlant}
               />
             )}
             {preciseStage === 'recommend' && (

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { PLANTS, realPhoto } from '../../data/plants';
+import { PLANTS } from '../../data/plants';
 import ReportScreen from './ReportScreen';
 import GoalSettingScreen from './GoalSettingScreen';
 import { loadJournalState, saveJournalState, clearJournalState } from '../../utils/storage';
@@ -72,12 +72,11 @@ function createEmptyJournal(speciesId) {
 }
 
 function deriveView(journal) {
-  if (!journal.speciesId) return 'select-species';
   if (journal.goals === null || journal.goals === undefined) return 'goal-setting';
   return 'main';
 }
 
-export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBackToModeSelect }) {
+export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBackToModeSelect, onNeedNewPlant }) {
   const [journal, setJournal] = useState(() => {
     const saved = loadJournalState();
     if (saved && !saved.ended) {
@@ -113,11 +112,6 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
   }
 
   const species = PLANTS.find((p) => p.id === journal.speciesId);
-
-  function handleSelectSpecies(id) {
-    setJournal((prev) => ({ ...prev, speciesId: id }));
-    setView('goal-setting');
-  }
 
   function handleStartGoals(goals) {
     setJournal((prev) => ({ ...prev, goals }));
@@ -207,32 +201,10 @@ export default function RealPlantJournalScreen({ presetSpeciesId, scores, onBack
   }
 
   function handleStartNewPlant() {
+    // 식물 선택은 이제 StarterKit을 통해서만 가능하므로, 이 화면 안에서 다시
+    // 고르게 하지 않고 journal-intro로 내보내 새 추천을 받게 함.
     clearJournalState();
-    setJournal(createEmptyJournal(null));
-    setReportMode(null);
-    setView('select-species');
-  }
-
-  // ---- 식물 선택 ----
-  if (view === 'select-species') {
-    return (
-      <div>
-        <div style={{ fontFamily: 'Sora', fontWeight: 700, fontSize: 17, marginBottom: 4 }}>
-          실제로 키우는 식물을 선택해주세요
-        </div>
-        <div style={{ fontSize: 12.5, color: 'rgba(243,241,232,.6)', marginBottom: 14 }}>
-          21종 중에서 골라주세요.
-        </div>
-        <div className="plant-grid">
-          {PLANTS.map((p) => (
-            <div key={p.id} className="plant-card" style={{ cursor: 'pointer' }} onClick={() => handleSelectSpecies(p.id)}>
-              <img src={realPhoto(p.id)} alt={p.name} />
-              <div className="pname" style={{ color: 'var(--ink)' }}>{p.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    if (onNeedNewPlant) onNeedNewPlant();
   }
 
   // ---- 목표 설정 ----
